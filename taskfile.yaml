@@ -1,0 +1,19 @@
+version: "3"
+
+dotenv:
+  - .env
+
+tasks:
+  up:
+    cmd: docker compose up -d --build
+
+  down:
+    cmd: docker compose down
+
+  restart:
+    cmds:
+      - task: down
+      - task: up
+
+  migrate:
+    cmd: migrate -database=postgres://$DB_USER:$DB_PASS@$DB_ADDR/$DB_NAME?sslmode=disable -path=./migrations up
