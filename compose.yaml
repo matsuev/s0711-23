@@ -30,7 +30,8 @@ services:
         "/migrations",
         "-database",
         "postgres://$DB_USER:$DB_PASS@database:5432/$DB_NAME?sslmode=disable",
-        "up",
+        "goto",
+        "$DB_VERSION"
       ]
     
 volumes:
