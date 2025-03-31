@@ -1,23 +1,52 @@
-# upstream myapp {
-#    server mysuperapp-1:7080 weight=5;
-#    server mysuperapp-2:7080 weight=2;
-#    server mysuperapp-3:7080;
-# }
+upstream core-upstream {
+   server core-service-1:7080;
+   server core-service-2:7080;
+   server core-service-3:7080;
+   server core-service-4:7080;
+   server core-service-5:7080;
+   server core-service-6:7080;
+}
 
+upstream user-upstream {
+   server user-service-1:6080;
+   server user-service-2:6080;
+}
+
+upstream chat-upstram {
+   server chat-service-1:7080;
+}
+
+map $http_x_rpc_method $app__route {
+   user.*  user-upstream;
+   chat.*  chat-upstream;
+
+   default core-upstream;
+}
 
 server {
    listen 80;
 
-   location / {
-      proxy_pass http://mysuperapp-1:7080;
-   }
+   location /rpc/v1 {
+      client_max_body_size 10;
+      client_body_timeout 5s;
 
-   location /api/user {
-      proxy_pass http://mysuperapp-2:7080;
-   }
+      if ($request_method != POST) {
+         return 444;
+      }
 
-   location /api/post {
-      proxy_pass http://mysuperapp-3:7080;
+      if ($http_authorization = "") {
+         return 401;
+      }
+
+      if ($http_x_rpc_method = "") {
+         return 444;
+      }
+
+      if ($http_content_type != "application/json") {
+         return 444;
+      }
+
+      proxy_pass http://$app__route;
    }
 
 }
