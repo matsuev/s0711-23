@@ -1,5 +1,5 @@
 upstream core-upstream {
-   server core-service-1:7080;
+   server core-service-1;
    server core-service-2:7080;
    server core-service-3:7080;
    server core-service-4:7080;
@@ -27,7 +27,7 @@ server {
    listen 80;
 
    location /rpc/v1 {
-      client_max_body_size 10;
+      client_max_body_size 4096;
       client_body_timeout 5s;
 
       if ($request_method != POST) {
