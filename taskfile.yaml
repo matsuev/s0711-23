@@ -1,0 +1,7 @@
+version: "3"
+
+tasks:
+  demoapi:
+    cmds:
+      - protoc -I ./contracts demoapi.proto --go_out=./internal/demoapi --go-grpc_out=./internal/demoapi
+      - go mod tidy
