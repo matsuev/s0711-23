@@ -5,5 +5,14 @@ package demo.service.proto;
 option go_package = "./;demoapi";
 
 service DemoService {
+   rpc GetUserByID(GetUserRequest) returns (UserResponse);
+}
 
+message GetUserRequest {
+   int64 id = 1;
+}
+
+message UserResponse {
+   int64 id = 1;
+   string username = 2;
 }
