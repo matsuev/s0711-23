@@ -1,9 +1,14 @@
 {
    "client": {
-      "allow_anonymous_connect_without_token": true,
       "allowed_origins": [
          "*"
-      ]
+      ],
+      "proxy": {
+         "connect": {
+            "enabled": true,
+            "endpoint": "grpc://host.docker.internal:10000"
+         }
+      }
    },
    "http_api": {
       "key": "my_api_key"
@@ -16,10 +21,7 @@
    "channel": {
       "without_namespace": {
          "allow_subscribe_for_client": true,
-         "allow_subscribe_for_anonymous": true,
-         "presence": true,
-         "history_size": 10,
-         "history_ttl": "30s"
+         "allow_subscribe_for_anonymous": true
       }
    }
 }

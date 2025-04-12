@@ -2,8 +2,8 @@ services:
   balancer:
     image: nginx:mainline-alpine3.21
     restart: unless-stopped
-    labels:
-      - dev.orbstack.domains=web.orb.local
+    ports:
+      - 8080:80
     volumes:
       - ./web:/var/www/web
       - ./config/balancer:/etc/nginx/templates
