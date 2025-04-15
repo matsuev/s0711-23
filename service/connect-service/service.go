@@ -3,12 +3,16 @@ package main
 import (
 	"context"
 	"encoding/json"
+	"log"
 	"s0711-23/internal/proxyproto"
+	"s0711-23/internal/userdb"
+	"strconv"
 )
 
 // Service ...
 type Service struct {
 	proxyproto.UnimplementedCentrifugoProxyServer
+	query userdb.Querier
 }
 
 // Connect ...
@@ -25,7 +29,13 @@ func (s *Service) Connect(ctx context.Context, request *proxyproto.ConnectReques
 		return nil, err
 	}
 
-	if authRequest.Username != "root" || authRequest.Password != "secret" {
+	result, err := s.query.UserLogin(context.Background(), userdb.UserLoginParams{
+		Username: authRequest.Username,
+		Password: authRequest.Password,
+	})
+
+	if err != nil {
+		log.Println(err)
 		return &proxyproto.ConnectResponse{
 			Error: &proxyproto.Error{
 				Code:    101,
@@ -34,11 +44,18 @@ func (s *Service) Connect(ctx context.Context, request *proxyproto.ConnectReques
 		}, nil
 	}
 
-	response := &proxyproto.ConnectResponse{
-		Result: &proxyproto.ConnectResult{
-			User: "root",
-		},
+	if result.Enabled {
+		return &proxyproto.ConnectResponse{
+			Result: &proxyproto.ConnectResult{
+				User: strconv.Itoa(int(result.ID)),
+			},
+		}, nil
 	}
 
-	return response, nil
+	return &proxyproto.ConnectResponse{
+		Error: &proxyproto.Error{
+			Code:    101,
+			Message: "unauthorized",
+		},
+	}, nil
 }
