@@ -12,7 +12,14 @@ import (
 // Service ...
 type Service struct {
 	proxyproto.UnimplementedCentrifugoProxyServer
-	query userdb.Querier
+	store userdb.Querier
+}
+
+// NewService ...
+func NewService(store userdb.Querier) *Service {
+	return &Service{
+		store: store,
+	}
 }
 
 // Connect ...
@@ -29,19 +36,14 @@ func (s *Service) Connect(ctx context.Context, request *proxyproto.ConnectReques
 		return nil, err
 	}
 
-	result, err := s.query.UserLogin(context.Background(), userdb.UserLoginParams{
+	result, err := s.store.UserLogin(context.Background(), userdb.UserLoginParams{
 		Username: authRequest.Username,
 		Password: authRequest.Password,
 	})
 
 	if err != nil {
 		log.Println(err)
-		return &proxyproto.ConnectResponse{
-			Error: &proxyproto.Error{
-				Code:    101,
-				Message: "unauthorized",
-			},
-		}, nil
+		return respondError(101, "unauthorized"), nil
 	}
 
 	if result.Enabled {
@@ -52,10 +54,5 @@ func (s *Service) Connect(ctx context.Context, request *proxyproto.ConnectReques
 		}, nil
 	}
 
-	return &proxyproto.ConnectResponse{
-		Error: &proxyproto.Error{
-			Code:    101,
-			Message: "unauthorized",
-		},
-	}, nil
+	return respondError(101, "unauthorized"), nil
 }

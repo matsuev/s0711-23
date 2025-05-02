@@ -2,7 +2,7 @@
 const centrifuge = new Centrifuge('ws://127.0.0.1:8000/connection/websocket', {
    data: {
       username: "root",
-      password: "secret"
+      password: "password"
    }
 });
 
